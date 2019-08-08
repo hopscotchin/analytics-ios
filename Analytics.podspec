@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.license          =  { :type => 'MIT' }
   s.author           = { "Segment" => "friends@segment.com" }
   s.source           = { :git => "https://github.com/hopscotchin/analytics-ios.git", :tag => s.version.to_s }
-  s.social_media_url = 'https://twitter.com/segment'
+
 
   s.ios.deployment_target = '7.0'
 
