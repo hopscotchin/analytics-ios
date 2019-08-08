@@ -88,7 +88,7 @@
     @catch (NSException *exc) {
         exception = exc;
     }
-    NSString *charlieSendString = [[NSString alloc] initWithData:payload encoding:NSUTF8StringEncoding];
+//    NSString *charlieSendString = [[NSString alloc] initWithData:payload encoding:NSUTF8StringEncoding];
     if (error || exception) {
         SEGLog(@"Error serializing JSON for batch upload %@", error);
         completionHandler(NO); // Don't retry this batch.

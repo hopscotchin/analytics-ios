@@ -37,7 +37,7 @@ typedef NSMutableURLRequest *_Nonnull (^SEGRequestFactory)(NSURL *_Nonnull);
 /**
  * Creates and returns a configuration with default settings and the given write key.
  *
- * @param writeKey Your project's write key from segment.io.
+ * @param settings Your project's settings containing @"APIKEY", @"ENDPOINT".
  */
 + (_Nonnull instancetype)configurationWithSettings:(NSDictionary *_Nonnull) settings;
 
