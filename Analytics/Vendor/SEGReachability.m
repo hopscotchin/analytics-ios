@@ -55,11 +55,7 @@ NSString *const kSEGReachabilityChangedNotification = @"kSEGReachabilityChangedN
 static NSString *reachabilityFlags(SCNetworkReachabilityFlags flags)
 {
     return [NSString stringWithFormat:@"%c%c %c%c%c%c%c%c%c",
-#if TARGET_OS_IPHONE
                                       (flags & kSCNetworkReachabilityFlagsIsWWAN) ? 'W' : '-',
-#else
-                                      'X',
-#endif
                                       (flags & kSCNetworkReachabilityFlagsReachable) ? 'R' : '-',
                                       (flags & kSCNetworkReachabilityFlagsConnectionRequired) ? 'c' : '-',
                                       (flags & kSCNetworkReachabilityFlagsTransientConnection) ? 't' : '-',
@@ -310,7 +306,6 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     if ((flags & testcase) == testcase)
         connectionUP = NO;
 
-#if TARGET_OS_IPHONE
     if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
         // We're on 3G.
         if (!self.reachableOnWWAN) {
@@ -318,7 +313,6 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
             connectionUP = NO;
         }
     }
-#endif
 
     return connectionUP;
 }
@@ -335,10 +329,9 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 
 - (BOOL)isReachableViaWWAN
 {
-#if TARGET_OS_IPHONE
-
+    
     SCNetworkReachabilityFlags flags = 0;
-
+    
     if (SCNetworkReachabilityGetFlags(reachabilityRef, &flags)) {
         // Check we're REACHABLE
         if (flags & kSCNetworkReachabilityFlagsReachable) {
@@ -348,7 +341,6 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
             }
         }
     }
-#endif
 
     return NO;
 }
@@ -360,12 +352,10 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     if (SCNetworkReachabilityGetFlags(reachabilityRef, &flags)) {
         // Check we're reachable
         if ((flags & kSCNetworkReachabilityFlagsReachable)) {
-#if TARGET_OS_IPHONE
             // Check we're NOT on WWAN
             if ((flags & kSCNetworkReachabilityFlagsIsWWAN)) {
                 return NO;
             }
-#endif
             return YES;
         }
     }
@@ -427,9 +417,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
         if ([self isReachableViaWiFi])
             return SEGReachableViaWiFi;
 
-#if TARGET_OS_IPHONE
         return SEGReachableViaWWAN;
-#endif
     }
 
     return SEGNotReachable;
