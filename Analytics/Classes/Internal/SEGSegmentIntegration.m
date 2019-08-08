@@ -101,24 +101,16 @@ static BOOL GetAdTrackingEnabled()
         }];
 #endif
 
-        if ([NSThread isMainThread]) {
-            [self setupFlushTimer];
-        } else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [self setupFlushTimer];
-            });
-        }
+        self.flushTimer = [NSTimer timerWithTimeInterval:self.configuration.flushInterval
+                                                  target:self
+                                                selector:@selector(flush)
+                                                userInfo:nil
+                                                 repeats:YES];
+        
+        [NSRunLoop.mainRunLoop addTimer:self.flushTimer
+                                forMode:NSDefaultRunLoopMode];
     }
     return self;
-}
-
-- (void)setupFlushTimer
-{
-    self.flushTimer = [NSTimer scheduledTimerWithTimeInterval:self.configuration.flushInterval
-                                                       target:self
-                                                     selector:@selector(flush)
-                                                     userInfo:nil
-                                                      repeats:YES];
 }
 
 /*
@@ -162,6 +154,7 @@ static CTTelephonyNetworkInfo *_telephonyNetworkInfo;
         dict[@"type"] = @"ios";
         dict[@"model"] = GetDeviceModel();
         dict[@"id"] = [[device identifierForVendor] UUIDString];
+        dict[@"name"] = [device model];
         if (NSClassFromString(SEGAdvertisingClassIdentifier)) {
             dict[@"adTrackingEnabled"] = @(GetAdTrackingEnabled());
         }
