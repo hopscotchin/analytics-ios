@@ -41,7 +41,6 @@ Version 3.7.0-beta *(27th August, 2018)*
 * [Fix](https://github.com/segmentio/analytics-ios/pull/763): Retry HTTP 429 status codes
 * [Fix](https://github.com/segmentio/analytics-ios/pull/761): Send RFC 7231 Formatted User Agent
 * [Fix](https://github.com/segmentio/analytics-ios/pull/751): Ensure queue is always < 1000 items
-* [Fix](https://github.com/segmentio/analytics-ios/pull/750): Reset SEGUserIdKey only on tvOS
 * [Fix](https://github.com/segmentio/analytics-ios/pull/749): Renames GZIP category to prevent collisions
 * [Fix](https://github.com/segmentio/analytics-ios/pull/744): sharedAnalytics returns null before setup
 * [Fix](https://github.com/segmentio/analytics-ios/pull/741): Swift 4 support
@@ -264,7 +263,6 @@ Version 3.3.0 *(08-05-2016)*
  * [Improvement](https://github.com/segmentio/analytics-ios/pull/565): Limit queue size to 1000. This will prevent crashes/memory issues from the queue being too large.
  * [Fix](https://github.com/segmentio/analytics-ios/pull/563): Replace Foundation import with UIKit import.
  * [Improvement](https://github.com/segmentio/analytics-ios/pull/567): Exclude cache files from backup.
- * [New](https://github.com/segmentio/analytics-ios/pull/572): Add tvOS support.
  * [New](https://github.com/segmentio/analytics-ios/pull/575): Update context object with referrer information.
 
 Version 3.2.6 *(07-10-2016)*

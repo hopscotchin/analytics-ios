@@ -78,14 +78,12 @@ static SEGAnalytics *__sharedInstance = nil;
             _storeKitTracker = [SEGStoreKitTracker trackTransactionsForAnalytics:self];
         }
 
-#if !TARGET_OS_TV
         if (configuration.trackPushNotifications && configuration.launchOptions) {
             NSDictionary *remoteNotification = configuration.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
             if (remoteNotification) {
                 [self trackPushNotification:remoteNotification fromLaunch:YES];
             }
         }
-#endif
     }
     return self;
 }

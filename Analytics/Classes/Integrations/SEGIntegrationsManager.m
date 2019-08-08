@@ -71,11 +71,8 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
         self.serialQueue = seg_dispatch_queue_create_specific("io.segment.analytics", DISPATCH_QUEUE_SERIAL);
         self.messageQueue = [[NSMutableArray alloc] init];
         self.httpClient = [[SEGHTTPClient alloc] initWithRequestFactory:configuration.requestFactory];
-#if TARGET_OS_TV
-        self.storage = [[SEGUserDefaultsStorage alloc] initWithDefaults:[NSUserDefaults standardUserDefaults] namespacePrefix:nil crypto:configuration.crypto];
-#else
+
         self.storage = [[SEGFileStorage alloc] initWithFolder:[SEGFileStorage applicationSupportDirectoryURL] crypto:configuration.crypto];
-#endif
         self.cachedAnonymousId = [self loadOrGenerateAnonymousID:NO];
         NSMutableArray *factories = [[configuration factories] mutableCopy];
         [factories addObject:[[SEGSegmentIntegrationFactory alloc] initWithHTTPClient:self.httpClient storage:self.storage]];
@@ -277,11 +274,8 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
 
 - (NSString *)loadOrGenerateAnonymousID:(BOOL)reset
 {
-#if TARGET_OS_TV
-    NSString *anonymousId = [self.storage stringForKey:SEGAnonymousIdKey];
-#else
+
     NSString *anonymousId = [self.storage stringForKey:kSEGAnonymousIdFilename];
-#endif
 
     if (!anonymousId || reset) {
         // We've chosen to generate a UUID rather than use the UDID (deprecated in iOS 5),
@@ -289,11 +283,8 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
         // or MAC address (blocked in iOS 7). For more info see https://segment.io/libraries/ios#ids
         anonymousId = GenerateUUIDString();
         SEGLog(@"New anonymousId: %@", anonymousId);
-#if TARGET_OS_TV
-        [self.storage setString:anonymousId forKey:SEGAnonymousIdKey];
-#else
+
         [self.storage setString:anonymousId forKey:kSEGAnonymousIdFilename];
-#endif
     }
     return anonymousId;
 }
@@ -301,11 +292,8 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
 - (void)saveAnonymousId:(NSString *)anonymousId
 {
     self.cachedAnonymousId = anonymousId;
-#if TARGET_OS_TV
-    [self.storage setString:anonymousId forKey:SEGAnonymousIdKey];
-#else
+
     [self.storage setString:anonymousId forKey:@"segment.anonymousId"];
-#endif
 }
 
 - (void)flush
