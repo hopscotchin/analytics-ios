@@ -139,13 +139,6 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
 }
 
 
-#pragma mark - Public API
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"<%p:%@, %@>", self, [self class], [self dictionaryWithValuesForKeys:@[ @"configuration" ]]];
-}
-
 #pragma mark - Analytics API
 
 - (void)identify:(NSString *)userId traits:(NSDictionary *)traits options:(NSDictionary *)options
@@ -372,24 +365,12 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
         if (self.settingsRequest) {
             return;
         }
-
-        self.settingsRequest = [self.httpClient settingsForWriteKey:self.configuration.writeKey completionHandler:^(BOOL success, NSDictionary *settings) {
-            seg_dispatch_specific_async(self -> _serialQueue, ^{
-                if (success) {
-                    [self setCachedSettings:settings];
-                } else {
-                    // If settings request fail, fall back to using just Segment integration.
-                    // Doesn't address situations where this callback never gets called (though we don't expect that to ever happen).
-                    [self setCachedSettings:@{
-                        @"integrations" : @{
-                            @"Segment.io" : @{@"apiKey" : self.configuration.writeKey},
-                        },
-                        @"plan" : @{@"track" : @{}}
-                    }];
-                }
-                self.settingsRequest = nil;
-            });
-        }];
+        NSString *writeKey = self.configuration.settings[SETTINGS_API_KEY] ?: @"";
+        [self setCachedSettings:@{
+                                  @"integrations" : @{
+                                          @"Segment.io" : @{@"apiKey" : writeKey},
+                                          }
+                                  }];
     });
 }
 

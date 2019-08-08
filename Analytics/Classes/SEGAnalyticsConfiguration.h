@@ -25,6 +25,10 @@ typedef NSMutableURLRequest *_Nonnull (^SEGRequestFactory)(NSURL *_Nonnull);
 @protocol SEGCrypto;
 @protocol SEGMiddleware;
 
+
+#define SETTINGS_API_KEY @"APIKEY"
+#define SETTINGS_API_END_POINT @"ENDPOINT"
+
 /**
  * This object provides a set of properties to control various policies of the analytics client. Other than `writeKey`, these properties can be changed at any time.
  */
@@ -35,14 +39,11 @@ typedef NSMutableURLRequest *_Nonnull (^SEGRequestFactory)(NSURL *_Nonnull);
  *
  * @param writeKey Your project's write key from segment.io.
  */
-+ (_Nonnull instancetype)configurationWithWriteKey:(NSString *_Nonnull)writeKey;
++ (_Nonnull instancetype)configurationWithSettings:(NSDictionary *_Nonnull) settings;
 
-/**
- * Your project's write key from segment.io.
- *
- * @see +configurationWithWriteKey:
- */
-@property (nonatomic, copy, readonly, nonnull) NSString *writeKey;
+
+//settings
+@property (nonatomic, copy, readonly, nonnull) NSDictionary *settings;
 
 /**
  * Whether the analytics client should use location services.

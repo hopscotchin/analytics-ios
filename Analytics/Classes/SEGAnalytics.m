@@ -176,14 +176,6 @@ NSString *const SEGBuildKeyV2 = @"SEGBuildKeyV2";
     }];
 }
 
-
-#pragma mark - Public API
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"<%p:%@, %@>", self, [self class], [self dictionaryWithValuesForKeys:@[ @"configuration" ]]];
-}
-
 #pragma mark - Identify
 
 - (void)identify:(NSString *)userId

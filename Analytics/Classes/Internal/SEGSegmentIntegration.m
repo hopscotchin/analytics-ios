@@ -65,7 +65,6 @@ static BOOL GetAdTrackingEnabled()
 @property (nonatomic, assign) SEGAnalyticsConfiguration *configuration;
 @property (atomic, copy) NSDictionary *referrer;
 @property (nonatomic, copy) NSString *userId;
-@property (nonatomic, strong) NSURL *apiURL;
 @property (nonatomic, strong) SEGHTTPClient *httpClient;
 @property (nonatomic, strong) id<SEGStorage> storage;
 @property (nonatomic, strong) NSURLSessionDataTask *attributionRequest;
@@ -82,7 +81,6 @@ static BOOL GetAdTrackingEnabled()
         self.configuration = analytics.configuration;
         self.httpClient = httpClient;
         self.storage = storage;
-        self.apiURL = [SEGMENT_API_BASE URLByAppendingPathComponent:@"import"];
         self.userId = [self getUserId];
         self.reachability = [SEGReachability reachabilityWithHostname:@"google.com"];
         [self.reachability startNotifier];
@@ -102,9 +100,6 @@ static BOOL GetAdTrackingEnabled()
             }
         }];
 #endif
-        [self dispatchBackground:^{
-            [self trackAttributionData:self.configuration.trackAttributionData];
-        }];
 
         if ([NSThread isMainThread]) {
             [self setupFlushTimer];
@@ -297,11 +292,6 @@ static CTTelephonyNetworkInfo *_telephonyNetworkInfo;
             self.flushTaskID = UIBackgroundTaskInvalid;
         }
     });
-}
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"<%p:%@, %@>", self, self.class, self.configuration.writeKey];
 }
 
 - (void)saveUserId:(NSString *)userId
@@ -548,7 +538,9 @@ static CTTelephonyNetworkInfo *_telephonyNetworkInfo;
     SEGLog(@"%@ Flushing %lu of %lu queued API calls.", self, (unsigned long)batch.count, (unsigned long)self.queue.count);
     SEGLog(@"Flushing batch %@.", payload);
 
-    self.batchRequest = [self.httpClient upload:payload forWriteKey:self.configuration.writeKey completionHandler:^(BOOL retry) {
+    NSString *writeKey = self.configuration.settings[SETTINGS_API_KEY] ?: @"";
+    NSURL *baseUrl = self.configuration.settings[SETTINGS_API_END_POINT] ?: SEGMENT_API_BASE;
+    self.batchRequest = [self.httpClient upload:payload baseUrl:baseUrl forWriteKey:writeKey completionHandler:^(BOOL retry) {
         [self dispatchBackground:^{
             if (retry) {
                 [self notifyForName:SEGSegmentRequestDidFailNotification userInfo:batch];
@@ -556,7 +548,7 @@ static CTTelephonyNetworkInfo *_telephonyNetworkInfo;
                 [self endBackgroundTask];
                 return;
             }
-
+            
             [self.queue removeObjectsInArray:batch];
             [self persistQueue];
             [self notifyForName:SEGSegmentRequestDidSucceedNotification userInfo:batch];
@@ -628,38 +620,6 @@ static CTTelephonyNetworkInfo *_telephonyNetworkInfo;
     [self.storage setArray:[self.queue copy] forKey:SEGQueueKey];
 #else
     [self.storage setArray:[self.queue copy] forKey:kSEGQueueFilename];
-#endif
-}
-
-NSString *const SEGTrackedAttributionKey = @"SEGTrackedAttributionKey";
-
-- (void)trackAttributionData:(BOOL)trackAttributionData
-{
-#if TARGET_OS_IPHONE
-    if (!trackAttributionData) {
-        return;
-    }
-
-    BOOL trackedAttribution = [[NSUserDefaults standardUserDefaults] boolForKey:SEGTrackedAttributionKey];
-    if (trackedAttribution) {
-        return;
-    }
-
-    NSDictionary *staticContext = self.cachedStaticContext;
-    NSDictionary *liveContext = [self liveContext];
-    NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:staticContext.count + liveContext.count];
-    [context addEntriesFromDictionary:staticContext];
-    [context addEntriesFromDictionary:liveContext];
-
-    self.attributionRequest = [self.httpClient attributionWithWriteKey:self.configuration.writeKey forDevice:[context copy] completionHandler:^(BOOL success, NSDictionary *properties) {
-        [self dispatchBackground:^{
-            if (success) {
-                [self.analytics track:@"Install Attributed" properties:properties];
-                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SEGTrackedAttributionKey];
-            }
-            self.attributionRequest = nil;
-        }];
-    }];
 #endif
 }
 

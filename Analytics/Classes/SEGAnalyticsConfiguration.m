@@ -27,7 +27,7 @@
 
 @interface SEGAnalyticsConfiguration ()
 
-@property (nonatomic, copy, readwrite) NSString *writeKey;
+@property (nonatomic, copy, readwrite) NSDictionary *settings;
 @property (nonatomic, strong, readonly) NSMutableArray *factories;
 
 @end
@@ -35,15 +35,15 @@
 
 @implementation SEGAnalyticsConfiguration
 
-+ (instancetype)configurationWithWriteKey:(NSString *)writeKey
++ (instancetype)configurationWithSettings:(NSDictionary *_Nonnull) settings
 {
-    return [[SEGAnalyticsConfiguration alloc] initWithWriteKey:writeKey];
+    return [[SEGAnalyticsConfiguration alloc] initWithSettings:settings];
 }
 
-- (instancetype)initWithWriteKey:(NSString *)writeKey
+- (instancetype)initWithSettings:(NSDictionary *) settings
 {
     if (self = [self init]) {
-        self.writeKey = writeKey;
+        self.settings = settings;
     }
     return self;
 }
@@ -75,11 +75,6 @@
 - (void)use:(id<SEGIntegrationFactory>)factory
 {
     [self.factories addObject:factory];
-}
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"<%p:%@, %@>", self, self.class, [self dictionaryWithValuesForKeys:@[ @"writeKey", @"shouldUseLocationServices", @"flushAt" ]]];
 }
 
 @end

@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Used by the analytics client to configure various options.
  */
 @property (nonatomic, strong, readonly) SEGAnalyticsConfiguration *configuration;
+@property (nonatomic, assign) BOOL shouldPassToSegment;
 
 /**
  * Setup this analytics client instance.
