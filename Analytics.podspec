@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "Analytics"
-  s.version          = "3.7.3"
+  s.version          = "3.7.4"
   s.summary          = "The hassle-free way to add analytics to your iOS app."
 
   s.description      = <<-DESC
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.homepage         = "http://segment.com/"
   s.license          =  { :type => 'MIT' }
   s.author           = { "Segment" => "friends@segment.com" }
-  s.source           = { :git => "https://github.com/hopscotchin/analytics-ios.git", :tag => s.version.to_s }
+  s.source           = { :git => "git@github.com:hopscotchin/analytics-ios.git", :tag => s.version.to_s }
 
 
   s.ios.deployment_target = '7.0'
