@@ -7,11 +7,8 @@
 #import "SEGReachability.h"
 #import "SEGHTTPClient.h"
 #import "SEGStorage.h"
-
-#if TARGET_OS_IOS
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
-#endif
 
 NSString *const SEGSegmentDidSendRequestNotification = @"SegmentDidSendRequest";
 NSString *const SEGSegmentRequestDidSucceedNotification = @"SegmentRequestDidSucceed";
@@ -89,6 +86,7 @@ static BOOL GetAdTrackingEnabled()
         self.backgroundTaskQueue = seg_dispatch_queue_create_specific("io.segment.analytics.backgroundTask", DISPATCH_QUEUE_SERIAL);
         self.flushTaskID = UIBackgroundTaskInvalid;
 
+#if !TARGET_OS_TV
         // Check for previous queue/track data in NSUserDefaults and remove if present
         [self dispatchBackground:^{
             if ([[NSUserDefaults standardUserDefaults] objectForKey:SEGQueueKey]) {
@@ -98,7 +96,7 @@ static BOOL GetAdTrackingEnabled()
                 [[NSUserDefaults standardUserDefaults] removeObjectForKey:SEGTraitsKey];
             }
         }];
-
+#endif
 
         self.flushTimer = [NSTimer timerWithTimeInterval:self.configuration.flushInterval
                                                   target:self
@@ -121,6 +119,7 @@ static BOOL GetAdTrackingEnabled()
  * Ref: http://stackoverflow.com/questions/14238586/coretelephony-crash
  */
 
+static CTTelephonyNetworkInfo *_telephonyNetworkInfo;
 
 - (NSDictionary *)staticContext
 {
@@ -218,8 +217,9 @@ static BOOL GetAdTrackingEnabled()
         });
         
         CTCarrier *carrier = [_telephonyNetworkInfo subscriberCellularProvider];
-        if (carrier.carrierName.length)
+        if (carrier.carrierName.length) {
             network[@"carrier"] = carrier.carrierName;
+        }
         network;
     });
 
@@ -284,7 +284,11 @@ static BOOL GetAdTrackingEnabled()
     [self dispatchBackground:^{
         self.userId = userId;
 
+#if TARGET_OS_TV
+        [self.storage setString:userId forKey:SEGUserIdKey];
+#else
         [self.storage setString:userId forKey:kSEGUserIdFilename];
+#endif
     }];
 }
 
@@ -293,7 +297,11 @@ static BOOL GetAdTrackingEnabled()
     [self dispatchBackground:^{
         [self.traits addEntriesFromDictionary:traits];
 
+#if TARGET_OS_TV
+        [self.storage setDictionary:[self.traits copy] forKey:SEGTraitsKey];
+#else
         [self.storage setDictionary:[self.traits copy] forKey:kSEGTraitsFilename];
+#endif
     }];
 }
 
@@ -485,9 +493,14 @@ static BOOL GetAdTrackingEnabled()
 - (void)reset
 {
     [self dispatchBackgroundAndWait:^{
-
+#if TARGET_OS_TV
+        [self.storage removeKey:SEGUserIdKey];
+        [self.storage removeKey:SEGTraitsKey];
+#else
         [self.storage removeKey:kSEGUserIdFilename];
         [self.storage removeKey:kSEGTraitsFilename];
+#endif
+
         self.userId = nil;
         self.traits = [NSMutableDictionary dictionary];
     }];
@@ -553,8 +566,11 @@ static BOOL GetAdTrackingEnabled()
 - (NSMutableArray *)queue
 {
     if (!_queue) {
-
+#if TARGET_OS_TV
+        _queue = [[self.storage arrayForKey:SEGQueueKey] ?: @[] mutableCopy];
+#else
         _queue = [[self.storage arrayForKey:kSEGQueueFilename] ?: @[] mutableCopy];
+#endif
     }
 
     return _queue;
@@ -563,8 +579,11 @@ static BOOL GetAdTrackingEnabled()
 - (NSMutableDictionary *)traits
 {
     if (!_traits) {
-
+#if TARGET_OS_TV
+        _traits = [[self.storage dictionaryForKey:SEGTraitsKey] ?: @{} mutableCopy];
+#else
         _traits = [[self.storage dictionaryForKey:kSEGTraitsFilename] ?: @{} mutableCopy];
+#endif
     }
 
     return _traits;
@@ -582,7 +601,11 @@ static BOOL GetAdTrackingEnabled()
 
 - (void)persistQueue
 {
+#if TARGET_OS_TV
+    [self.storage setArray:[self.queue copy] forKey:SEGQueueKey];
+#else
     [self.storage setArray:[self.queue copy] forKey:kSEGQueueFilename];
+#endif
 }
 
 @end
