@@ -7,6 +7,7 @@
 //#define SEGMENT_CDN_BASE [NSURL URLWithString:@"https://cdn-segment-com-5fsaj1xnikhp.runscope.net/v1"]
 //#define MOBILE_SERVICE_BASE [NSURL URLWithString:@"https://mobile--service-segment-com-5fsaj1xnikhp.runscope.net/v1"]
 #define SEGMENT_API_BASE [NSURL URLWithString:@"https://api.segment.io/v1"]
+#define SEGMENT_BASE_CONTENT_TYPE @"application/json"
 //#define SEGMENT_CDN_BASE [NSURL URLWithString:@"https://cdn-settings.segment.com/v1"]
 //#define MOBILE_SERVICE_BASE [NSURL URLWithString:@"https://mobile-service.segment.com/v1"]
 
@@ -32,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
  * NOTE: You need to re-dispatch within the completionHandler onto a desired queue to avoid threading issues.
  * Completion handlers are called on a dispatch queue internal to SEGHTTPClient. 
  */
-- (NSURLSessionUploadTask *)upload:(JSON_DICT)batch baseUrl: (NSURL *)baseUrl forWriteKey:(NSString *)writeKey completionHandler:(void (^)(BOOL retry))completionHandler;;
+- (NSURLSessionUploadTask *)upload:(JSON_DICT)batch baseUrl: (NSURL *)baseUrl forWriteKey:(NSString *)writeKey contentType: (NSString *)contentType completionHandler:(void (^)(BOOL retry))completionHandler;
 
 
 @end

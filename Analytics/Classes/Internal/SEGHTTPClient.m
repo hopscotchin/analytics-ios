@@ -39,7 +39,7 @@
     return self;
 }
 
-- (NSURLSession *)sessionForWriteKey:(NSString *)writeKey
+- (NSURLSession *)sessionForWriteKey:(NSString *)writeKey ccontentType:(NSString *) contentType
 {
     NSURLSession *session = self.sessionsByWriteKey[writeKey];
     if (!session) {
@@ -47,7 +47,7 @@
         config.HTTPAdditionalHeaders = @{
             @"Accept-Encoding" : @"gzip",
             @"Content-Encoding" : @"gzip",
-            @"Content-Type" : @"application/json",
+            @"Content-Type" : contentType,
             @"Authorization" : [@"Basic " stringByAppendingString:[[self class] authorizationHeader:writeKey]],
             @"User-Agent" : [NSString stringWithFormat:@"analytics-ios/%@", [SEGAnalytics version]],
         };
@@ -66,16 +66,16 @@
 }
 
 
-- (NSURLSessionUploadTask *)upload:(NSDictionary *)batch baseUrl: (NSURL *)baseUrl forWriteKey:(NSString *)writeKey completionHandler:(void (^)(BOOL retry))completionHandler
+- (NSURLSessionUploadTask *)upload:(JSON_DICT)batch baseUrl: (NSURL *)baseUrl forWriteKey:(NSString *)writeKey contentType: (NSString *)contentType completionHandler:(void (^)(BOOL retry))completionHandler;
 {
     //    batch = SEGCoerceDictionary(batch);
-    NSURLSession *session = [self sessionForWriteKey:writeKey];
+    NSURLSession *session = [self sessionForWriteKey:writeKey ccontentType:contentType];
 
     NSURL *url = [baseUrl URLByAppendingPathComponent:@"batch"];
     NSMutableURLRequest *request = self.requestFactory(url);
 
     // This is a workaround for an IOS 8.3 bug that causes Content-Type to be incorrectly set
-    [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request addValue:contentType forHTTPHeaderField:@"Content-Type"];
 
     [request setHTTPMethod:@"POST"];
 

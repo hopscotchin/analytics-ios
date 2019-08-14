@@ -28,6 +28,7 @@ typedef NSMutableURLRequest *_Nonnull (^SEGRequestFactory)(NSURL *_Nonnull);
 
 #define SETTINGS_API_KEY @"APIKEY"
 #define SETTINGS_API_END_POINT @"ENDPOINT"
+#define SETTINGS_API_CONTENT_TYPE @"CONTENTTYPE"
 
 /**
  * This object provides a set of properties to control various policies of the analytics client. Other than `writeKey`, these properties can be changed at any time.

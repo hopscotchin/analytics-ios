@@ -513,7 +513,8 @@ static CTTelephonyNetworkInfo *_telephonyNetworkInfo;
 
     NSString *writeKey = self.configuration.settings[SETTINGS_API_KEY] ?: @"";
     NSURL *baseUrl = self.configuration.settings[SETTINGS_API_END_POINT] ?: SEGMENT_API_BASE;
-    self.batchRequest = [self.httpClient upload:payload baseUrl:baseUrl forWriteKey:writeKey completionHandler:^(BOOL retry) {
+    NSString *contentType = self.configuration.settings[SETTINGS_API_CONTENT_TYPE] ?: SEGMENT_BASE_CONTENT_TYPE;
+    self.batchRequest = [self.httpClient upload:payload baseUrl:baseUrl forWriteKey:writeKey contentType:contentType completionHandler:^(BOOL retry) {
         [self dispatchBackground:^{
             if (retry) {
                 [self notifyForName:SEGSegmentRequestDidFailNotification userInfo:batch];
