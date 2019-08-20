@@ -353,12 +353,8 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
         if (self.settingsRequest) {
             return;
         }
-        NSString *writeKey = self.configuration.settings[SETTINGS_API_KEY] ?: @"";
-        [self setCachedSettings:@{
-                                  @"integrations" : @{
-                                          @"Segment.io" : @{@"apiKey" : writeKey},
-                                          }
-                                  }];
+        NSDictionary *configSettings = self.configuration.settings[CONFIG_SETTINGS];
+        [self setCachedSettings:configSettings];
     });
 }
 
